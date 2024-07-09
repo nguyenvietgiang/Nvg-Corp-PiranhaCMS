@@ -1,11 +1,14 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Piranha;
 using Piranha.AttributeBuilder;
 using Piranha.AspNetCore.Identity.SQLite;
 using Piranha.Data.EF.SQLite;
 using Piranha.Manager.Editor;
+using Nvg_Corp.Data;
+using Nvg_Corp.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<IContactRepository, ContactRepository>();
 
 builder.AddPiranha(options =>
 {
@@ -26,7 +29,13 @@ builder.AddPiranha(options =>
     options.UseMemoryCache();
 
     var connectionString = builder.Configuration.GetConnectionString("piranha");
+
+    // Cấu hình cho PiranhaDB
     options.UseEF<SQLiteDb>(db => db.UseSqlite(connectionString));
+
+    // Cấu hình cho CustomDbContext (ContactDbContext)
+    builder.Services.AddDbContext<ContactDbContext>(options =>
+        options.UseSqlite(connectionString));
     options.UseIdentityWithSeed<IdentitySQLiteDb>(db => db.UseSqlite(connectionString));
 
 /**
